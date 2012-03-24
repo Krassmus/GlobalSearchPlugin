@@ -1,0 +1,4 @@
+pluginname=GlobalSearchPlugin
+pluginclassname=GlobalSearchPlugin
+version=0.2
+origin=data-quest

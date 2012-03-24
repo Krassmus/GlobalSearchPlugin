@@ -1,0 +1,1 @@
+<?= MessageBox::success(sprintf("Index erstellt mit %s Einträgen.", $count)) ?>
