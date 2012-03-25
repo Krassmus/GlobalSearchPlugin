@@ -217,8 +217,8 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
                 "SELECT sem_tree.sem_tree_id, IF(sem_tree.studip_object_id IS NULL, sem_tree.name, Institute.Name) AS name " .
                 "FROM sem_tree " .
                     "LEFT JOIN Institute ON (sem_tree.studip_object_id = Institute.Institut_id) " .
-                "WHERE sem_tree.sem_tree_id = ".$db->quote($sem_tree_id)." " .
-            "")->fetch(PDO::FETCH_ASSOC);
+                "WHERE sem_tree.sem_tree_id = ".$db->quote($sem_tree_id)." "
+            )->fetch(PDO::FETCH_ASSOC);
         }
         $template = $this->getTemplate("study_area_filter.php", null);
         $template->set_attribute("sem_tree_items", $sem_tree_items);
@@ -374,9 +374,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
         //indexiert Veranstaltungen:
         $db = DBManager::get();
         $count = 0;
-        $seminare = $db->query(
-            "SELECT Seminar_id, VeranstaltungsNummer, Name, Untertitel, Beschreibung, Sonstiges, Ort, visible FROM seminare " .
-        "");
+        $seminare = $db->query("SELECT Seminar_id, VeranstaltungsNummer, Name, Untertitel, Beschreibung, Sonstiges, Ort, visible FROM seminare ");
         $index = Globalsearch::get();
         while ($seminar = $seminare->fetch(PDO::FETCH_ASSOC)) {
             $searchtext = $seminar['VeranstaltungsNummer']." ".$seminar['Name']." ".$seminar['Untertitel']." ".$seminar['Beschreibung']." ".$seminar['Sonstiges']." ".$seminar['Ort'];
@@ -393,9 +391,9 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             );
             $count++;
         }
-        $users = $db->query(
-            "SELECT user_id, username, Vorname, Nachname, visible FROM auth_user_md5 " .
-        "");
+        
+        // Users
+        $users = $db->query("SELECT user_id, username, Vorname, Nachname, visible FROM auth_user_md5");
         while ($user = $users->fetch(PDO::FETCH_ASSOC)) {
             $searchtext = $user['Vorname']." ".$user['Nachname'];
             $index->setEntry(
@@ -409,9 +407,9 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             );
             $count++;
         }
-        $documents = $db->query(
-            "SELECT dokument_id, seminar_id, name, description, filename FROM dokumente " .
-        "");
+        
+        // Documents
+        $documents = $db->query("SELECT dokument_id, seminar_id, name, description, filename FROM dokumente");
         while ($document = $documents->fetch(PDO::FETCH_ASSOC)) {
             $seminar_name = $db->query("SELECT Name FROM seminare WHERE Seminar_id = ".$db->quote($document['seminar_id'])." ")->fetch(PDO::FETCH_COLUMN, 0);
             
@@ -431,9 +429,8 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             $count++;
         }
         
-        $resources = $db->query(
-            "SELECT resource_id, name, description FROM resources_objects WHERE category_id != '' " .
-        "");
+        // Resources
+        $resources = $db->query("SELECT resource_id, name, description FROM resources_objects WHERE category_id != ''");
         while ($object = $resources->fetch(PDO::FETCH_ASSOC)) {
             $index->setEntry(
                 $object['name'],
@@ -447,7 +444,8 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             $count++;
         }
         
-        $postings = $db->query("SELECT topic_id, name, description, user_id, Seminar_id FROM px_topics ");
+        // Forum
+        $postings = $db->query("SELECT topic_id, name, description, user_id, Seminar_id FROM px_topics");
         while ($posting = $postings->fetch(PDO::FETCH_ASSOC)) {
             $posting_content = preg_replace("/\[quote([=\d\w\s]*)\]([\d\w\s]*)\[\/quote\]/", "", $posting['description']);
             
