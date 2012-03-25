@@ -60,7 +60,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             if ($GLOBALS['perm']->have_perm("root")) {
                 $search_item->tools[] = '<a href="'.URLHelper::getLink("dispatch.php/admin/user/edit/".$search_item->entry_id).'" title="'._("Benutzerverwaltung").'">'.Assets::img("icons/16/blue/edit.png", array('class' => "text-bottom"))."</a>";
             } else {
-                $search_item->tools[] = '<a href="'.URLHelper::getLink("about.php", array('username' => $uname, 'cmd' => "add_user", 'add_uname' => $uname)).'" title="'._("Als Buddy hinzufï¿½gen").'">'.Assets::img("icons/16/blue/add/person.png", array('class' => "text-bottom"))."</a>";
+                $search_item->tools[] = '<a href="'.URLHelper::getLink("about.php", array('username' => $uname, 'cmd' => "add_user", 'add_uname' => $uname)).'" title="'._("Als Buddy hinzufügen").'">'.Assets::img("icons/16/blue/add/person.png", array('class' => "text-bottom"))."</a>";
             }
         }
     }
@@ -68,7 +68,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
     public function show_document_avatar($eventname, $search_item) {
         if ($search_item->type === "document") {
             $db = DBManager::get();
-            $dokument = $db->query("SELECT * FROM dokumente WHERE dokument_id = ".$db->quote($search_item->entry_id))->fetch(PDO::FETCH_ASSOC);
+            $dokument = $db->query("SELECT name, url FROM dokumente WHERE dokument_id = ".$db->quote($search_item->entry_id))->fetch(PDO::FETCH_ASSOC);
             $extension = strtolower(substr($dokument['name'], strrpos($dokument['name'], ".") + 1));
             if (in_array($extension, array("jpg","jpeg","gif","png","bmp"))) {
                 $search_item->avatar = URLHelper::getURL("sendfile.php", array('type' => $dokument['url'] ? 6 : 0, 'file_id' => $search_item->entry_id, 'file_name' => $dokument['name']));
@@ -103,7 +103,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             if ($GLOBALS['perm']->have_perm("admin")) {
                 $search_item->tools[] = '<a href="'.URLHelper::getLink("dispatch.php/course/basicdata/view", array('cid' => $search_item->entry_id)).'" title="'._("Grunddaten bearbeiten").'">'.Assets::img("icons/16/blue/edit.png", array('class' => "text-bottom"))."</a>";
                 $search_item->tools[] = '<a href="'.URLHelper::getLink("dispatch.php/course/study_areas/show", array('cid' => $search_item->entry_id)).'" title="'._("Studienbereiche festlegen").'">'.Assets::img("icons/16/blue/grouping.png", array('class' => "text-bottom"))."</a>";
-                $search_item->tools[] = '<a href="'.URLHelper::getLink("raumzeit.php", array('cid' => $search_item->entry_id)).'" title="'._("Zeiten/Rï¿½ume").'">'.Assets::img("icons/16/blue/date.png", array('class' => "text-bottom"))."</a>";
+                $search_item->tools[] = '<a href="'.URLHelper::getLink("raumzeit.php", array('cid' => $search_item->entry_id)).'" title="'._("Zeiten/Räume").'">'.Assets::img("icons/16/blue/date.png", array('class' => "text-bottom"))."</a>";
                 $search_item->tools[] = '<a href="'.URLHelper::getLink("dispatch.php/course/room_requests", array('cid' => $search_item->entry_id)).'" title="'._("Raumanfragen").'">'.Assets::img("icons/16/blue/room_request.png", array('class' => "text-bottom"))."</a>";
             }
         }
@@ -272,13 +272,13 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
                 $range_ids = array();
             }
             
-            //Suche durchfï¿½hren:
+            //Suche durchführen:
             $time = microtime();
             $searchstring = $_SESSION['search_parameter']['search'];
             $filter = array();
             
             if ($_SESSION['search_parameter']['study_area']) {
-                //Auf Studienbereich einschrï¿½nken:
+                //Auf Studienbereich einschränken:
                 $study_areas = TreeAbstract::getInstance('StudipSemTree', false);
                 $path = $study_areas->getParents($_SESSION['search_parameter']['study_area']);
                 $filter[] = "sem_tree_".implode("_", $path);
@@ -474,7 +474,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
         $count += $result_object->count;
         
         if ($GLOBALS['IS_CLI']) {
-            echo "Index ersellt mit ".$count." Eintrï¿½gen.";
+            echo "Index ersellt mit ".$count." Einträgen.";
         } else {
             $template = $this->getTemplate("indexing.php");
             $template->set_attribute("count", $count);
