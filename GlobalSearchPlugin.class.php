@@ -375,7 +375,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
         $db = DBManager::get();
         $count = 0;
         $seminare = $db->query(
-            "SELECT * FROM seminare " .
+            "SELECT Seminar_id, VeranstaltungsNummer, Name, Untertitel, Beschreibung, Sonstiges, Ort, visible FROM seminare " .
         "");
         $index = Globalsearch::get();
         while ($seminar = $seminare->fetch(PDO::FETCH_ASSOC)) {
@@ -394,7 +394,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             $count++;
         }
         $users = $db->query(
-            "SELECT * FROM auth_user_md5 " .
+            "SELECT user_id, username, Vorname, Nachname, visible FROM auth_user_md5 " .
         "");
         while ($user = $users->fetch(PDO::FETCH_ASSOC)) {
             $searchtext = $user['Vorname']." ".$user['Nachname'];
@@ -410,7 +410,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             $count++;
         }
         $documents = $db->query(
-            "SELECT * FROM dokumente " .
+            "SELECT dokument_id, seminar_id, name, description, filename FROM dokumente " .
         "");
         while ($document = $documents->fetch(PDO::FETCH_ASSOC)) {
             $seminar_name = $db->query("SELECT Name FROM seminare WHERE Seminar_id = ".$db->quote($document['seminar_id'])." ")->fetch(PDO::FETCH_COLUMN, 0);
@@ -432,7 +432,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
         }
         
         $resources = $db->query(
-            "SELECT * FROM resources_objects WHERE category_id != '' " .
+            "SELECT resource_id, name, description FROM resources_objects WHERE category_id != '' " .
         "");
         while ($object = $resources->fetch(PDO::FETCH_ASSOC)) {
             $index->setEntry(
@@ -447,7 +447,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             $count++;
         }
         
-        $postings = $db->query("SELECT * FROM px_topics ");
+        $postings = $db->query("SELECT topic_id, name, description, user_id, Seminar_id FROM px_topics ");
         while ($posting = $postings->fetch(PDO::FETCH_ASSOC)) {
             $posting_content = preg_replace("/\[quote([=\d\w\s]*)\]([\d\w\s]*)\[\/quote\]/", "", $posting['description']);
             
