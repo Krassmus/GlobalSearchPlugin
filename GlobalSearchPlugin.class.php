@@ -46,6 +46,8 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
         NotificationCenter::addObserver($this, "add_calculator", "LastAlteringOfSearchResults");
         
         NotificationCenter::addObserver($this, "filter_study_areas", "GlobalSearchFilter");
+        NotificationCenter::addObserver($this, "filter_object_types", "GlobalSearchFilter");
+        
     }
     
     public function show_user_avatar($eventname, $search_item) {
@@ -233,13 +235,12 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
     
     public function filter_object_types($eventname, $filter) {
         $template = $this->getTemplate("object_types_filter.php", null);
-        $template->set_attribute("sem_tree_items", $sem_tree_items);
-        $template->set_attribute("breadcrumb", $breadcrumb);
+        
         $filter->filter[] = array(
-            'id' => "study_areas_filter",
-            'header' => _("Filtern nach Studienbereich"),
+            'id' => "object_type_filter",
+            'header' => _("Filtern nach Typ").($_SESSION['search_parameter']['type'] ? " ".Assets::img("icons/16/black/exclaim.png", array('class' => "text-bottom")) : ""),
             'content' => $template->render(),
-            'open' => Request::get("object_type") ? true : false
+            'open' => Request::get("select_type") ? true : false
         );
     }
     
@@ -255,9 +256,14 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
         if (Request::submitted("suchen")) {
             $_SESSION['search_parameter']['search'] = Request::get("search");
         }
+        
         if (Request::get("study_area")) {
             $_SESSION['search_parameter']['study_area'] = Request::get("study_area");
         }
+        if (Request::get("select_type")) {
+            $_SESSION['search_parameter']['type'] = Request::get("select_type");
+        }
+        
         foreach ($_SESSION['search_parameter'] as $key => $parameter) {
             if (!$parameter) {
                 unset($_SESSION['search_parameter'][$key]);
@@ -275,6 +281,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             //Suche durchführen:
             $time = microtime();
             $searchstring = $_SESSION['search_parameter']['search'];
+            $type = $_SESSION['search_parameter']['type'] ? $_SESSION['search_parameter']['type'] : null;
             $filter = array();
             
             if ($_SESSION['search_parameter']['study_area']) {
@@ -284,7 +291,14 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
                 $filter[] = "sem_tree_".implode("_", $path);
             }
             
-            $results = Globalsearch::get()->search($searchstring, $range_ids, null, $filter, 0, $this->maximum_results + 1);
+            $results = Globalsearch::get()->search(
+                $searchstring, 
+                $range_ids, 
+                $type, 
+                $filter, 
+                0, //offset
+                $this->maximum_results + 1
+            );
             if (count($results) > $this->maximum_results) {
                 array_pop($results);
                 $template->set_attribute('more', true);
@@ -332,6 +346,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             $range_ids = array();
         }
         $searchstring = $_SESSION['search_parameter']['search'];
+        $type = $_SESSION['search_parameter']['type'] ? $_SESSION['search_parameter']['type'] : null;
         $filter = array();
 
         if ($_SESSION['search_parameter']['study_area']) {
@@ -342,7 +357,14 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
         }
 
         $output = array('more' => 0);
-        $results = Globalsearch::get()->search($searchstring, $range_ids, null, $filter, Request::int("offset") * $this->maximum_results, $this->maximum_results + 1);
+        $results = Globalsearch::get()->search(
+            $searchstring, 
+            $range_ids, 
+            $type, 
+            $filter, 
+            Request::int("offset") * $this->maximum_results, 
+            $this->maximum_results + 1
+        );
         if (count($results) > $this->maximum_results) {
             array_pop($results);
             $output['more'] = 1;
