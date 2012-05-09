@@ -14,6 +14,7 @@
 ?>
 <div style="text-align: center; margin-left: auto; margin-right: auto; margin-bottom: 10px;">
     <form action="?" method="GET">
+        <input type="hidden" id="original_search" value="<?= $_SESSION['search_parameter']['search'] ? htmlReady($_SESSION['search_parameter']['search']) : "" ?>" class="bottom">
         <input type="text" name="search" id="search" value="<?= $_SESSION['search_parameter']['search'] ? htmlReady($_SESSION['search_parameter']['search']) : "" ?>" class="bottom">
         <?= makebutton("suchen", "input") ?>
         <?= makebutton("zuruecksetzen", "input") ?>
@@ -85,6 +86,9 @@ jQuery(function () {
         font-weight: bold;
         font-size: 1.1em;
     }
+    ul#searchresults > li .marked {
+        background-color: #ffff00;
+    }
 </style>
 
 <ul id="searchresults">
@@ -106,6 +110,18 @@ jQuery(function () {
 <? endif ?>
 
 <script>
+STUDIP.GS = {
+    highlight_searchword: function () {
+        jQuery("#searchresults > li, #searchresults > li *").each(function () {
+            if (!jQuery(this).hasClass("marked") && jQuery(this).children().length === 0) {
+                var searchword = new RegExp("(" + jQuery("#original_search").val().replace(/([.?*+^$[\]\\(){}-])/g, "\\$1") + ")", "ig");
+                var new_html = jQuery(this).text().replace(searchword, '<span class="marked">$1</span>');
+                jQuery(this).html(new_html);
+            }
+        });
+    }
+}
+
 jQuery(function () {
     jQuery("#search").focus();
     jQuery("ul#searchresults > li").live("click", function (event, element) {
@@ -115,6 +131,7 @@ jQuery(function () {
             event.stopImmediatePropagation();
         }
     });
+    STUDIP.GS.highlight_searchword();
 });
 var offset = 0;
 jQuery(window.document).bind('scroll', function (event) {
@@ -134,6 +151,7 @@ jQuery(window.document).bind('scroll', function (event) {
                 jQuery.each(response.results, function (index, element) {
                     jQuery("#searchresults").append(jQuery(element));
                 });
+                STUDIP.GS.highlight_searchword();
                 if (response.more) {
                     jQuery("#searchresults").append(jQuery('<li class="more">...</li>'));
                 }

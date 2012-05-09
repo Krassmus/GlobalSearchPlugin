@@ -39,7 +39,7 @@
                     break;
             }
             endif ?>
-            <?= htmlReady($result->title) ?>
+            <span><?= $result->title ?></span>
         </a>
     </div>
     <div><?= $result->presentation ?></div>
