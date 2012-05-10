@@ -9,14 +9,12 @@
  *  the License, or (at your option) any later version.
  */
 
-
-
 ?>
 <div style="text-align: center; margin-left: auto; margin-right: auto; margin-bottom: 10px;">
     <form action="?" method="GET">
         <input type="text" name="search" id="search" value="<?= $_SESSION['search_parameter']['search'] ? htmlReady($_SESSION['search_parameter']['search']) : "" ?>" class="bottom">
-        <?= makebutton("suchen", "input") ?>
-        <?= makebutton("zuruecksetzen", "input") ?>
+        <?= new Studip\Button(_("suchen"), array('title' => _("Suche starten"), 'name' => "suchen")) ?>
+        <?= new Studip\Button("zurücksetzen", array('title' => _("Suchwort und alle Filter zurücksetzen"), 'name' => "zuruecksetzen")) ?>
     </form>
 </div>
 
