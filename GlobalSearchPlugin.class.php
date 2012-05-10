@@ -306,6 +306,7 @@ class GlobalSearchPlugin extends StudIPPlugin implements SystemPlugin {
             //Ergebnisse nochmal prozessieren:
             foreach ($results as $key => $result) {
                 $result = (object) $result;
+                $result->title = htmlReady($result->title);
                 $result->tools = array();
                 NotificationCenter::postNotification("WillDisplaySearchResultItem", $result);
                 if (!$result->forbidden) {
